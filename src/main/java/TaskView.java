@@ -44,12 +44,6 @@ public class TaskView extends JFrame{
                 viewRepeatedTask();
             }
         });
-        save.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //createNewTask();
-            }
-        });
         comboBoxInterval.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -72,6 +66,10 @@ public class TaskView extends JFrame{
                 }
             }
         });
+    }
+
+    public void addSaveNewTaskButtonListener(ActionListener saveNewTaskButtonListener) {
+        save.addActionListener(saveNewTaskButtonListener);
     }
 
     private void createGUI() {
@@ -145,5 +143,53 @@ public class TaskView extends JFrame{
         comboBoxInterval.setEnabled(taskIsRepeated);
         comboBoxInterval.setEnabled(taskIsRepeated);
         time.setEnabled(!taskIsRepeated);
+    }
+
+    public String getTaskTitle() {
+        return taskTitle.getText();
+    }
+
+    public void setTaskTitle(String taskTitle) {
+        this.taskTitle.setText(taskTitle);
+    }
+
+    public Date getStartTime() {
+        return (Date) startTime.getValue();
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime.setValue(startTime);
+    }
+
+    public boolean getRepetedTask() {
+        return repetedTaskCheckBox.isSelected();
+    }
+
+    public void setRepetedTask(boolean repetedTaskCheckBox) {
+        this.repetedTaskCheckBox.setSelected(repetedTaskCheckBox);
+    }
+
+    public Date getEndTime() {
+        return (Date) endTime.getValue();
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime.setValue(endTime);
+    }
+
+    public int getInterval() {
+        return Integer.parseInt(interval.getText());
+    }
+
+    public void setInterval(int interval) {
+        this.interval.setText( Integer.toString(interval));
+    }
+
+    public Date getTime() {
+        return (Date) time.getValue();
+    }
+
+    public void setTime(JSpinner time) {
+        this.time.setValue(time);
     }
 }

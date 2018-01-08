@@ -1,12 +1,8 @@
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 
 /**
  * Created by Sviatoslav_H on 07.01.2018.
@@ -18,7 +14,6 @@ public class TaskManagerView extends JFrame {
     private JButton editTaskButton;
     private JButton createNewTaskButton;
     private JPanel mainPanel;
-    private DefaultTableModel model;
 
     public TaskManagerView() {
 
@@ -58,80 +53,29 @@ public class TaskManagerView extends JFrame {
         TaskTable.setUpdateSelectionOnSort(false);
         scrollPane1.setViewportView(TaskTable);
 
-        ActionListener loadFileButtonListener = new loadFileButtonListener();
-        loadFileButton.addActionListener(loadFileButtonListener);
+    }
 
-        ActionListener saveFileButtonListener = new saveFileButtonListener();
+    public void addSaveFileButtonListener(ActionListener saveFileButtonListener) {
         saveFileButton.addActionListener(saveFileButtonListener);
+    }
 
-        ActionListener createNewTaskButtonListener = new createNewTaskButtonListener();
+    public void addLoadFileButtonListener(ActionListener loadFileButtonListener) {
+        loadFileButton.addActionListener(loadFileButtonListener);
+    }
+
+    public void addCreateNewTaskButtonListener(ActionListener createNewTaskButtonListener) {
         createNewTaskButton.addActionListener(createNewTaskButtonListener);
+    }
 
-        ActionListener editTaskButtonListener = new editTaskButtonListener();
+    public void addEditTaskButtonListener(ActionListener editTaskButtonListener) {
         editTaskButton.addActionListener(editTaskButtonListener);
+    }
 
-       Object[] colomns = {"Title","Next time","Repeated","Active"};
-        model = new DefaultTableModel();
-        model.setColumnIdentifiers(colomns);
-
+    public void setModelTable(DefaultTableModel model) {
         TaskTable.setModel(model);
     }
 
-    class saveFileButtonListener implements ActionListener {
-              public void actionPerformed(ActionEvent e) {
-                  JFileChooser fileSave = new JFileChooser();
-                  FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("txt files (*.txt)", "txt");
-                  // add filters
-                  fileSave.addChoosableFileFilter(txtFilter);
-                  fileSave.setFileFilter(txtFilter);
-
-                  int ret = fileSave.showDialog(null, "Save file");
-                  if (ret == JFileChooser.APPROVE_OPTION) {
-                      File file = fileSave.getSelectedFile();
-                      TaskList tl = new ArrayTaskList();
-                      try {
-                          TaskIO.writeText(tl, file);
-                      } catch (IOException e1) {
-                          e1.printStackTrace();
-                      }
-                  }
-        }
+    public int getTaskTableSelectedRow() {
+        return TaskTable.getSelectedRow();
     }
-
-    class loadFileButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            JFileChooser fileopen = new JFileChooser();
-            int ret = fileopen.showDialog(null, "Open file");
-            if (ret == JFileChooser.APPROVE_OPTION) {
-                File file = fileopen.getSelectedFile();
-                TaskList tl = new ArrayTaskList();
-                try {
-                    TaskIO.readText(tl, file);
-                    Object[] row = new Object[4];
-                    for (Task next : tl) {
-                        model.addRow(new Object[]{next.getTitle(),next.getTime()});
-                    }
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    }
-
-    class createNewTaskButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            TaskView theTaskView = new TaskView();
-            theTaskView.setVisible(true);
-        }
-    }
-
-    class editTaskButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            int selIndex = TaskTable.getSelectedRow();
-            Object value = model.getValueAt(selIndex, 0);
-        }
-    }
-
 }
