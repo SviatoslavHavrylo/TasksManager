@@ -1,4 +1,5 @@
 
+import org.apache.log4j.Logger;
 import java.util.Iterator;
 /**
  * Created by Sviatoslav_H on 11.11.2017.
@@ -8,7 +9,7 @@ public class ArrayTaskList extends TaskList {
     private final int CUTRATE = 2;
     private Task[] taskList = new Task[INITSIZE];
     private int pointer = 0;
-
+    private static final Logger log = Logger.getLogger(ArrayTaskList.class);
     /**
      * @param task Task
      */
@@ -33,6 +34,7 @@ public class ArrayTaskList extends TaskList {
                     taskList[j] = taskList[j + 1];
                 pointer--;
                 haveFound = true;
+                log.info("Task was deleted from list. "+task.toString());
             }
         }
         if (taskList.length > INITSIZE && pointer < taskList.length / CUTRATE)

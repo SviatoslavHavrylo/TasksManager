@@ -128,6 +128,8 @@ public static void write(TaskList tasks, Writer out) throws IOException {
                     title = taskString.substring(0, mTitle2.start() - 1);
                 }
             }
+            if (title.charAt(0)== '"') {title=title.substring(1, title.length());}
+            if (title.charAt(title.length()-1)== '"') {title=title.substring(0, title.length()-1);}
 
             String start = "";
             Pattern patStart = Pattern.compile("from.+to");
@@ -163,17 +165,17 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             Matcher m = pat.matcher(taskString);
             if (m.find()) {
                 days = taskString.substring(m.start() + 7, m.end() - 4);
-                interval = Integer.parseInt(days) * 86400;
+                interval = Integer.parseInt(days) * 24; //86400
             }
             Pattern pat2 = Pattern.compile("hour");
             Matcher m2 = pat2.matcher(taskString);
             if (m2.find()) {
                 hours = taskString.substring(m2.start() - 3, m2.end() - 5);
                 try {
-                    interval = Integer.parseInt(hours) * 3600;
+                    interval = Integer.parseInt(hours) * 1; //3600
                 } catch (NumberFormatException e) {
                     String cHours = taskString.substring(m2.start() - 2, m2.end() - 5);
-                    interval += Integer.parseInt(cHours) * 3600;
+                    interval += Integer.parseInt(cHours) * 1;
                 }
             }
             Pattern pat3 = Pattern.compile("minute");
@@ -181,10 +183,10 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             if (m3.find()) {
                 minutes = taskString.substring(m3.start() - 3, m3.end() - 7);
                 try {
-                    interval += Integer.parseInt(minutes) * 60;
+                    interval += Integer.parseInt(minutes) * 1/60; //60
                 } catch (NumberFormatException e) {
                     String cMinutes = taskString.substring(m3.start() - 2, m3.end() - 7);
-                    interval += Integer.parseInt(cMinutes) * 60;
+                    interval += Integer.parseInt(cMinutes) * 1/60;
                 }
             }
             Pattern patSec = Pattern.compile("second");
@@ -195,7 +197,7 @@ public static void write(TaskList tasks, Writer out) throws IOException {
                     interval += Integer.parseInt(seconds);
                 } catch (NumberFormatException e) {
                     String cSeconds = taskString.substring(mSec.start() - 2, mSec.end() - 7);
-                    interval += Integer.parseInt(cSeconds);
+                    interval += Integer.parseInt(cSeconds)/3600;
                 }
             }
 

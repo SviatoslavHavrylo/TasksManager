@@ -1,22 +1,27 @@
+import org.apache.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Created by Sviatoslav_H on 08.01.2018.
  */
 public class MainController {
-private ArrayTaskList taskList;
+    private ArrayTaskList taskList;
     private TaskManagerView taskManagerView;
     private TaskView taskView;
     private Task newTask;
-    private DefaultTableModel model;
+    private TaskListTableModel model;
+    private DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+    private static final Logger log = Logger.getLogger(Task.class);
 
     public MainController(TaskManagerView taskManagerView) {
         this.taskManagerView = taskManagerView;
@@ -24,11 +29,11 @@ private ArrayTaskList taskList;
         this.taskManagerView.addLoadFileButtonListener(new loadFileButtonListener());
         this.taskManagerView.addCreateNewTaskButtonListener(new createNewTaskButtonListener());
         this.taskManagerView.addEditTaskButtonListener(new editTaskButtonListener());
-        Object[] colomns = {"Title","Next time","Repeated","Active"};
-        model = new DefaultTableModel();
-        model.setColumnIdentifiers(colomns);
-        this.taskManagerView.setModelTable(model);
+        this.taskManagerView.addDeleteTaskButtonListener(new deleteTaskButtonListener());
         this.taskList = new ArrayTaskList();
+        model = new TaskListTableModel(taskList);
+        this.taskManagerView.setModelTable(model);
+        ScheduledReminderThread reminderThread = new ScheduledReminderThread(taskList);
     }
 
     class saveFileButtonListener implements ActionListener {
@@ -44,8 +49,10 @@ private ArrayTaskList taskList;
                 File file = fileSave.getSelectedFile();
                 try {
                     TaskIO.writeText(taskList, file);
+                    log.info("File: "+file+" was successfully saved");
                 } catch (IOException e1) {
                     e1.printStackTrace();
+                    taskManagerView.displayErrorMessage("Something gone wrong");
                 }
             }
         }
@@ -58,15 +65,19 @@ private ArrayTaskList taskList;
             if (ret == JFileChooser.APPROVE_OPTION) {
                 File file = fileopen.getSelectedFile();
                 try {
+                    model.setRowCount(0);
                     TaskIO.readText(taskList, file);
                     Object[] row = new Object[4];
                     for (Task next : taskList) {
-                        model.addRow(new Object[]{next.getTitle(),next.getTime()});
+                        model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive()});
                     }
+                    log.info("File: "+file+" was successfully loaded to app");
                 } catch (IOException e1) {
                     e1.printStackTrace();
+                    taskManagerView.displayErrorMessage("Something gone wrong");
                 } catch (ParseException e1) {
                     e1.printStackTrace();
+                    taskManagerView.displayErrorMessage("Something gone wrong");
                 }
             }
         }
@@ -83,7 +94,21 @@ private ArrayTaskList taskList;
     class editTaskButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int selIndex = taskManagerView.getTaskTableSelectedRow();
-            Object value = model.getValueAt(selIndex, 0);
+            if (selIndex < 0) {
+                taskManagerView.displayErrorMessage("Select task first");
+            }
+            Task value = model.getValueAt(selIndex);
+            taskView = new TaskView(value);
+            taskView.addSaveNewTaskButtonListener(new saveNewTaskButtonListener());
+            taskView.setVisible(true);
+        }
+    }
+
+    class deleteTaskButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            int selIndex = taskManagerView.getTaskTableSelectedRow();
+            model.removeRow(selIndex);
+            taskList.remove(taskList.getTask(selIndex));
         }
     }
 
@@ -91,10 +116,39 @@ private ArrayTaskList taskList;
         public void actionPerformed(ActionEvent e) {
             String newTitle = taskView.getTaskTitle();
             Date newDate = taskView.getTime();
-            newTask = new Task(newTitle, newDate);
-            taskView.dispose();
-            taskList.add(newTask);
-            model.addRow(new Object[]{newTask, newTask.getTime()});
+            Date newStartTime = taskView.getStartTime();
+            Date newEndTime = taskView.getEndTime();
+            boolean newIsRepeated = taskView.getRepetedTask();
+            boolean newIsActive = taskView.getIsActiveTask();
+            int newInterval = taskView.getInterval();
+            if (taskView.getTask() == null) {
+                if (newTitle.isEmpty()) {
+                    taskManagerView.displayErrorMessage("Give a name to a new task");
+                }
+                if (newIsRepeated) {
+                    newTask = new Task(newTitle, newStartTime, newEndTime, newInterval);
+                } else {
+                    newTask = new Task(newTitle, newDate);
+                }
+                newTask.setActive(newIsActive);
+                taskView.dispose();
+                taskList.add(newTask);
+                model.addRow(new Object[]{newTask.getTitle(), dateFormat.format(newTask.getTime()), newTask.isRepeated(), newTask.isActive()});
+                log.info("New task was created. "+newTask.toString());
+
+            } else {
+                Task editTask = taskView.getTask();
+                editTask.setTitle(newTitle);
+                editTask.setTime(newDate);
+                editTask.setStartTime(newStartTime);
+                editTask.setEndTime(newEndTime);
+                editTask.setRepeated(newIsRepeated);
+                editTask.setActive(newIsActive);
+                editTask.setRepeatInterval(newInterval);
+                taskView.dispose();
+                log.info("Task was edited. "+editTask.toString());
+            }
+            model.fireTableDataChanged();
         }
     }
 }

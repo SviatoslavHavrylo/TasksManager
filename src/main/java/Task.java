@@ -1,5 +1,6 @@
-
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -14,6 +15,7 @@ public class Task implements Cloneable, Serializable {
     private int repeatInterval;
     private boolean isRepeated;
     private final int HASHNUMBER = 31;
+    private DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
     /**
      * @param title String
@@ -22,6 +24,9 @@ public class Task implements Cloneable, Serializable {
      */
 
     public Task(String title, Date time) throws IllegalArgumentException {
+        if (title.isEmpty()) {
+            throw new IllegalArgumentException("Give a name to new task");
+        }
         if (time == null) {
             throw new IllegalArgumentException("Time cannot be NULL");
         }
@@ -37,6 +42,9 @@ public class Task implements Cloneable, Serializable {
      * @throws IllegalArgumentException
      */
     public Task(String title, Date startTime, Date endTime, int repeatInterval) throws IllegalArgumentException {
+        if (title.isEmpty()) {
+            throw new IllegalArgumentException("Give a name to new task");
+        }
         if (startTime == null) {
             throw new IllegalArgumentException("Start time cannot be NULL");
         }
@@ -79,6 +87,10 @@ public class Task implements Cloneable, Serializable {
      */
     public void setActive(boolean active) {
         this.isActive = active;
+    }
+
+    public void setRepeatInterval(int repeatInterval) {
+        this.repeatInterval = repeatInterval;
     }
 
     /**
@@ -262,16 +274,14 @@ public class Task implements Cloneable, Serializable {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "title='" + title + '\'' +
-                ", time=" + time +
-                ", isActive=" + isActive +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", repeatInterval=" + repeatInterval +
-                ", isRepeated=" + isRepeated +
-                ", HASHNUMBER=" + HASHNUMBER +
-                '}';
+        String str = "Task title: " +'\''+ title + '\''+" Active:" + this.isActive() ;
+        if(this.isRepeated()) {
+            str += " Repeated task: start time: " + dateFormat.format(this.getStartTime()) + ", end time: " + dateFormat.format(this.getEndTime()) + ", interval: " + this.getRepeatInterval() + "\n";
+        }
+        else {
+            str += " Unrepeated task: start time: " + dateFormat.format(this.getStartTime()) + "\n";
+        }
+        return str;
     }
 
     @Override

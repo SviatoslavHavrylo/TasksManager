@@ -1,5 +1,4 @@
 import com.sun.xml.internal.bind.v2.TODO;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,12 +19,15 @@ public class TaskView extends JFrame{
     private JSpinner time;
     private JComboBox comboBoxInterval;
     private JPanel mainPanel;
+    private Task task;
 
     public TaskView() {
         super("Task");
         createGUI();
         viewRepeatedTask();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setInterval(0);
+        setComboBoxInterval(0);
+        //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(mainPanel);
         this.pack(); //устанавливаем оптимальный размер окна
         this.setLocationRelativeTo(null);
@@ -51,16 +53,16 @@ public class TaskView extends JFrame{
 
                 switch(selInterval) {
                     case "Every day" :
-                        int secDay = 60*60*24;
+                        int secDay = 24;
                         interval.setText(Integer.toString(secDay));
                         break;
                     case "Every week" :
-                        int secWeek = 60*60*24*7;
+                        int secWeek = 24*7;
                         interval.setText(Integer.toString(secWeek));
                         break;
                     case "Every month" :
                         //TODO change int for month
-                        int secMonth = 60*60*24*30;
+                        int secMonth = 24*30;
                         interval.setText(Integer.toString(secMonth));
                         break;
                 }
@@ -68,12 +70,32 @@ public class TaskView extends JFrame{
         });
     }
 
+    public Task getTask() {
+        return task;
+    }
+
+    public TaskView(Task task) {
+
+        this();
+        this.task = task;
+        this.setTitle("Edite task");
+        setTaskTitle(task.getTitle());
+        setStartTime(task.getStartTime());
+        setRepetedTask(task.isRepeated());
+        setEndTime(task.getEndTime());
+        setInterval(task.getRepeatInterval());
+        setTime(task.getTime());
+        activeTaskCheckBox.setSelected(task.isActive());
+        viewRepeatedTask();
+       setComboBoxInterval(task.getRepeatInterval());
+    }
+
     public void addSaveNewTaskButtonListener(ActionListener saveNewTaskButtonListener) {
         save.addActionListener(saveNewTaskButtonListener);
     }
 
     private void createGUI() {
-       mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 6, new Insets(0, 0, 0, 0), -1, -1));
         save = new JButton();
         save.setText("Save task");
@@ -131,7 +153,7 @@ public class TaskView extends JFrame{
         label5.setText("interval");
         mainPanel.add(label5, new com.intellij.uiDesigner.core.GridConstraints(4, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setText("interval seconds");
+        label6.setText("interval hours");
         mainPanel.add(label6, new com.intellij.uiDesigner.core.GridConstraints(5, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
@@ -141,7 +163,7 @@ public class TaskView extends JFrame{
         startTime.setEnabled(taskIsRepeated);
         endTime.setEnabled(taskIsRepeated);
         comboBoxInterval.setEnabled(taskIsRepeated);
-        comboBoxInterval.setEnabled(taskIsRepeated);
+        interval.setEnabled(taskIsRepeated);
         time.setEnabled(!taskIsRepeated);
     }
 
@@ -159,6 +181,10 @@ public class TaskView extends JFrame{
 
     public void setStartTime(Date startTime) {
         this.startTime.setValue(startTime);
+    }
+
+    public boolean getIsActiveTask() {
+        return activeTaskCheckBox.isSelected();
     }
 
     public boolean getRepetedTask() {
@@ -182,6 +208,22 @@ public class TaskView extends JFrame{
     }
 
     public void setInterval(int interval) {
+       String intervalValue  = "Every day";
+        switch(interval) {
+            case 24 :
+                intervalValue = "Every day";
+                break;
+            case 24*7 :
+               intervalValue = "Every week";
+                break;
+            case 24*30 :
+                intervalValue = "Every month";
+                break;
+        }
+        this.comboBoxInterval.setSelectedItem (intervalValue);
+    }
+
+    public void setComboBoxInterval(int interval) {
         this.interval.setText( Integer.toString(interval));
     }
 
@@ -189,7 +231,7 @@ public class TaskView extends JFrame{
         return (Date) time.getValue();
     }
 
-    public void setTime(JSpinner time) {
+    public void setTime(Date time) {
         this.time.setValue(time);
     }
 }
