@@ -1,3 +1,5 @@
+package model;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -1,3 +1,4 @@
+package model;
 
 import java.io.*;
 import java.text.ParseException;

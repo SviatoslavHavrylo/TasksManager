@@ -1,3 +1,5 @@
+package controller;
+
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -10,6 +12,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import model.ArrayTaskList;
+import model.Task;
+import model.TaskIO;
+import view.TaskView;
+import view.TaskManagerView;
+import view.TaskListTableModel;
 
 /**
  * Created by Sviatoslav_H on 08.01.2018.
@@ -30,6 +38,8 @@ public class MainController {
         this.taskManagerView.addCreateNewTaskButtonListener(new createNewTaskButtonListener());
         this.taskManagerView.addEditTaskButtonListener(new editTaskButtonListener());
         this.taskManagerView.addDeleteTaskButtonListener(new deleteTaskButtonListener());
+        this.taskManagerView.addShowTasksSelectionButtonListener(new showTasksSelectionButtonListener());
+        this.taskManagerView.addCancelSelectionButtonListener(new cancelSelectionButtonListener());
         this.taskList = new ArrayTaskList();
         model = new TaskListTableModel(taskList);
         this.taskManagerView.setModelTable(model);
@@ -109,6 +119,19 @@ public class MainController {
             int selIndex = taskManagerView.getTaskTableSelectedRow();
             model.removeRow(selIndex);
             taskList.remove(taskList.getTask(selIndex));
+        }
+    }
+
+    class showTasksSelectionButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+
+            taskManagerView.setBorderTitle("Tasks from "+dateFormat.format(taskManagerView.getDateFrom())+" to "+dateFormat.format(taskManagerView.getDateTo()));
+        }
+    }
+
+    class cancelSelectionButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            taskManagerView.setBorderTitle("All tasks");
         }
     }
 

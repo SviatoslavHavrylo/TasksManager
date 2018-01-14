@@ -1,6 +1,8 @@
-import javax.swing.table.DefaultTableModel;
-import java.util.Date;
+package view;
 
+import javax.swing.table.DefaultTableModel;
+import model.ArrayTaskList;
+import model.Task;
 
 /**
  * Created by Sviatoslav_H on 09.01.2018.

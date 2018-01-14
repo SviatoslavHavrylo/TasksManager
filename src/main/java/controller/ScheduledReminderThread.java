@@ -1,10 +1,14 @@
+package controller;
+
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import model.ArrayTaskList;
+import model.Task;
+import view.TaskView;
 
 /**
  * Created by Sviatoslav_H on 14.01.2018.
@@ -25,12 +29,17 @@ public class ScheduledReminderThread {
                 for (Task task : ScheduledReminderThread.this.taskList) {
                     long duration = task.nextTimeAfter(currentDate).getTime() - currentDate.getTime();
                     if (duration <= oneMinute & duration > 0)
-                        taskView = new TaskView(task);
-                        taskView.setTitle("You have new task NOW !");
-                        taskView.setVisible(true);
+                        try {
+                            taskView = new TaskView(task);
+                            taskView.setTitle("You have new task NOW !");
+                            taskView.setVisible(true);
+                            ScheduledReminderThread reminderThread = new ScheduledReminderThread(ScheduledReminderThread.this.taskList);
+                        }catch (Exception e){
+
+                        }
                 }
             }
         };
-        ses.scheduleAtFixedRate(pinger, 5, 60, TimeUnit.SECONDS);
+        ses.scheduleWithFixedDelay(pinger, 60, 60, TimeUnit.SECONDS);
     }
 }
