@@ -1,5 +1,6 @@
 package controller;
 
+import model.Tasks;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -11,7 +12,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
+
 import model.ArrayTaskList;
 import model.Task;
 import model.TaskIO;
@@ -59,7 +61,7 @@ public class MainController {
                 File file = fileSave.getSelectedFile();
                 try {
                     TaskIO.writeText(taskList, file);
-                    log.info("File: "+file+" was successfully saved");
+                    log.info("File: " + file + " was successfully saved");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                     taskManagerView.displayErrorMessage("Something gone wrong");
@@ -75,13 +77,9 @@ public class MainController {
             if (ret == JFileChooser.APPROVE_OPTION) {
                 File file = fileopen.getSelectedFile();
                 try {
-                    model.setRowCount(0);
                     TaskIO.readText(taskList, file);
-                    Object[] row = new Object[4];
-                    for (Task next : taskList) {
-                        model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive()});
-                    }
-                    log.info("File: "+file+" was successfully loaded to app");
+                    updateView();
+                    log.info("File: " + file + " was successfully loaded to app");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                     taskManagerView.displayErrorMessage("Something gone wrong");
@@ -124,13 +122,23 @@ public class MainController {
 
     class showTasksSelectionButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-
-            taskManagerView.setBorderTitle("Tasks from "+dateFormat.format(taskManagerView.getDateFrom())+" to "+dateFormat.format(taskManagerView.getDateTo()));
+            model.setRowCount(0);
+            try {
+                LinkedList<Task> list = Tasks.simpleLinkedList(Tasks.incoming(taskList, taskManagerView.getDateFrom(), taskManagerView.getDateTo()));
+                Collections.sort(list,Tasks.TaskTimeComparator);
+                for (Task next : list) {
+                    model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.nextTimeAfter(taskManagerView.getDateFrom())), next.isRepeated(), next.isActive()});
+                }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            taskManagerView.setBorderTitle("Tasks from " + dateFormat.format(taskManagerView.getDateFrom()) + " to " + dateFormat.format(taskManagerView.getDateTo()));
         }
     }
 
     class cancelSelectionButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+            updateView();
             taskManagerView.setBorderTitle("All tasks");
         }
     }
@@ -157,7 +165,7 @@ public class MainController {
                 taskView.dispose();
                 taskList.add(newTask);
                 model.addRow(new Object[]{newTask.getTitle(), dateFormat.format(newTask.getTime()), newTask.isRepeated(), newTask.isActive()});
-                log.info("New task was created. "+newTask.toString());
+                log.info("New task was created. " + newTask.toString());
 
             } else {
                 Task editTask = taskView.getTask();
@@ -169,9 +177,18 @@ public class MainController {
                 editTask.setActive(newIsActive);
                 editTask.setRepeatInterval(newInterval);
                 taskView.dispose();
-                log.info("Task was edited. "+editTask.toString());
+                log.info("Task was edited. " + editTask.toString());
             }
-            model.fireTableDataChanged();
+            updateView();
+        }
+    }
+
+    public void updateView() {
+        model.setRowCount(0);
+        LinkedList<Task> list = Tasks.simpleLinkedList(taskList);
+        Collections.sort(list, Tasks.TaskTimeComparator);
+        for (Task next : list) {
+            model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive()});
         }
     }
 }
