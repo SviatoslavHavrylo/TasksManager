@@ -28,7 +28,7 @@ public class TaskView extends JFrame{
         super("Task");
         createGUI();
         viewRepeatedTask();
-        setInterval(0);
+        setInterval(24);
         setComboBoxInterval(0);
         //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(mainPanel);

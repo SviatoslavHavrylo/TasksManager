@@ -28,6 +28,7 @@ public class ScheduledReminderThread {
                 Date currentDate = new Date();
                 for (Task task : ScheduledReminderThread.this.taskList) {
                     long duration = task.nextTimeAfter(currentDate).getTime() - currentDate.getTime();
+                    System.out.println(duration);
                     if (duration <= oneMinute & duration > 0)
                         try {
                             taskView = new TaskView(task);

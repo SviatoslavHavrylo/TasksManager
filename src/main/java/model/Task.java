@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 
 /**
  * Created by Sviatoslav_H on 15.10.2017.
@@ -303,4 +304,5 @@ public class Task implements Cloneable, Serializable {
         taskClone.isRepeated = this.isRepeated;
         return taskClone;
     }
+
 }

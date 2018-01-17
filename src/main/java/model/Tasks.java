@@ -13,7 +13,7 @@ public class Tasks {
         if (start.after(end))
             throw new IllegalArgumentException("Incorrect argument");
 
-        TaskList toReturn = new LinkedTaskList();
+        TaskList toReturn = new ArrayTaskList();
 
         for (Task currentTask : tasks) {
             Date nextTime = currentTask.nextTimeAfter(start);
@@ -53,4 +53,18 @@ public class Tasks {
         }
         return calendar;
     }
+
+    public static LinkedList simpleLinkedList(Iterable<Task> taskList){
+        LinkedList simpleList = new LinkedList();
+        for (Task next : taskList) {
+            simpleList.add(next);
+        }
+        return simpleList;
+    }
+
+    public static Comparator<Task> TaskTimeComparator = new Comparator<Task>() {
+        public int compare(Task task1, Task task2) {
+            return (task1.getTime().before(task1.getTime())? -1 : 1);
+        }
+    };
 }
