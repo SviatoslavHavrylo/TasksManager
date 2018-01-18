@@ -2,7 +2,6 @@ package model;
 
 import org.apache.log4j.Logger;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by Sviatoslav_H on 11.11.2017.

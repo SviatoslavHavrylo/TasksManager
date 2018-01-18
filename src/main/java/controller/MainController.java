@@ -124,9 +124,7 @@ public class MainController {
         public void actionPerformed(ActionEvent e) {
             model.setRowCount(0);
             try {
-                LinkedList<Task> list = Tasks.simpleLinkedList(Tasks.incoming(taskList, taskManagerView.getDateFrom(), taskManagerView.getDateTo()));
-                Collections.sort(list,Tasks.TaskTimeComparator);
-                for (Task next : list) {
+                for (Task next : Tasks.incoming(taskList, taskManagerView.getDateFrom(), taskManagerView.getDateTo())) {
                     model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.nextTimeAfter(taskManagerView.getDateFrom())), next.isRepeated(), next.isActive()});
                 }
             } catch (Exception e1) {
@@ -185,9 +183,7 @@ public class MainController {
 
     public void updateView() {
         model.setRowCount(0);
-        LinkedList<Task> list = Tasks.simpleLinkedList(taskList);
-        Collections.sort(list, Tasks.TaskTimeComparator);
-        for (Task next : list) {
+        for (Task next : taskList) {
             model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive()});
         }
     }

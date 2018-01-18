@@ -9,6 +9,5 @@ public class Main {
         TaskManagerView theView = new TaskManagerView();
         MainController theMainController = new MainController(theView);
         theView.setVisible(true);
-
     }
 }
