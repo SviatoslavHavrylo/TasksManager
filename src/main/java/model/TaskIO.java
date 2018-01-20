@@ -61,10 +61,12 @@ public class TaskIO {
             read(tasks, fileIn);
         } finally {
             fileIn.close();
-        }        
+        }
     }
-public static void write(TaskList tasks, Writer out) throws IOException {
-        PrintWriter dataOut = new PrintWriter(new BufferedWriter(out));
+
+    public static void write(TaskList tasks, Writer out) throws IOException {
+        PrintWriter printWriter = new PrintWriter(new BufferedWriter(out));
+        StringBuilder dataOut = new StringBuilder();
         int size = 0;
         int listSize = tasks.size();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -77,22 +79,8 @@ public static void write(TaskList tasks, Writer out) throws IOException {
                 dataOut.append("[" + dateFormat.format(task.getEndTime()) + "]");
                 dataOut.append(" every ");
                 int interval = task.getRepeatInterval();
-                if (interval < 24) {
-                    dataOut.append("[" + interval);
-                    dataOut.append((interval == 1) ? " hour]" : " hours]");
-                } else {
-                    int days = interval / 24;
-                    int hours = interval % 24;
-                    if (hours != 0) {
-                        dataOut.append("[" + days);
-                        dataOut.append((days == 1) ? " day " : " days ");
-                        dataOut.append("" + hours);
-                        dataOut.append((days == 1) ? " hour]" : " hours]");
-                    } else {
-                        dataOut.append("[" + days);
-                        dataOut.append((days == 1) ? " day]" : " days]");
-                    }
-                }
+                String stringInterval = minutesToStringTime(interval);
+                dataOut.append(stringInterval);
             } else {
                 dataOut.append(" at ");
                 dataOut.append("[" + dateFormat.format(task.getTime()) + "]");
@@ -100,9 +88,41 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             size++;
             dataOut.append(task.isActive() ? " active" : " inActive");
             dataOut.append(size == listSize ? "." : ";\n");
-            dataOut.flush();
+            printWriter.append(dataOut);
+            printWriter.flush();
         }
-        dataOut.close();
+        printWriter.close();
+    }
+
+    public static String minutesToStringTime(int t) {
+        String result = "";
+        int days = t / (60 * 24);
+        int hours = (t - days * 60 * 24) / 60;
+        int minutes = t - (days * 60 * 24) - (hours * 60);
+        int seconds = t - (days * 60 * 60 * 24) - (hours * 60 * 60) - (minutes * 60);
+
+        if (days > 0) {
+            result = result + days + ending(days, " day");
+        }
+        if (hours > 0) {
+            result = result + " " + hours + ending(hours, " hour");
+        }
+        if (minutes > 0) {
+            result = result + " " + minutes + ending(minutes, " minute");
+        }
+        if (seconds > 0) {
+            result = result + " " + seconds + ending(seconds, " second");
+        }
+        result = result.trim();
+        return "[" + result + "]";
+    }
+
+    private static String ending(int time, String s) {
+        if (time < 2) {
+            return s;
+        } else {
+            return s + "s";
+        }
     }
 
     public static void read(TaskList tasks, Reader in) throws IOException, ParseException {
@@ -115,6 +135,7 @@ public static void write(TaskList tasks, Writer out) throws IOException {
         Date dTime = null;
         int interval = 0;
         boolean active = false;
+        boolean repeated = false;
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS");
 
         while ((taskString = br.readLine()) != null) {
@@ -138,6 +159,7 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             if (mStart.find()) {
                 start = taskString.substring(mStart.start() + 6, mStart.end() - 4);
                 dStart = date.parse(start);
+                repeated = true;
             }
 
             String end = "";
@@ -146,6 +168,7 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             if (mEnd.find()) {
                 end = taskString.substring(mEnd.start() + 4, mEnd.end() - 7);
                 dEnd = date.parse(end);
+                repeated = true;
             }
 
 
@@ -155,6 +178,7 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             if (mTime.find()) {
                 time = taskString.substring(mTime.start() + 4, mTime.end() - 1);
                 dTime = date.parse(time);
+                repeated = false;
             }
 
             String days = "";
@@ -166,17 +190,17 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             Matcher m = pat.matcher(taskString);
             if (m.find()) {
                 days = taskString.substring(m.start() + 7, m.end() - 4);
-                interval = Integer.parseInt(days) * 24; //86400
+                interval = Integer.parseInt(days) * 24*60; //86400
             }
             Pattern pat2 = Pattern.compile("hour");
             Matcher m2 = pat2.matcher(taskString);
             if (m2.find()) {
                 hours = taskString.substring(m2.start() - 3, m2.end() - 5);
                 try {
-                    interval = Integer.parseInt(hours) * 1; //3600
+                    interval = Integer.parseInt(hours) * 60; //3600
                 } catch (NumberFormatException e) {
                     String cHours = taskString.substring(m2.start() - 2, m2.end() - 5);
-                    interval += Integer.parseInt(cHours) * 1;
+                    interval += Integer.parseInt(cHours) * 60;
                 }
             }
             Pattern pat3 = Pattern.compile("minute");
@@ -184,10 +208,10 @@ public static void write(TaskList tasks, Writer out) throws IOException {
             if (m3.find()) {
                 minutes = taskString.substring(m3.start() - 3, m3.end() - 7);
                 try {
-                    interval += Integer.parseInt(minutes) * 1/60; //60
+                    interval += Integer.parseInt(minutes) * 1; //60
                 } catch (NumberFormatException e) {
                     String cMinutes = taskString.substring(m3.start() - 2, m3.end() - 7);
-                    interval += Integer.parseInt(cMinutes) * 1/60;
+                    interval += Integer.parseInt(cMinutes) * 1;
                 }
             }
             Pattern patSec = Pattern.compile("second");
@@ -198,23 +222,26 @@ public static void write(TaskList tasks, Writer out) throws IOException {
                     interval += Integer.parseInt(seconds);
                 } catch (NumberFormatException e) {
                     String cSeconds = taskString.substring(mSec.start() - 2, mSec.end() - 7);
-                    interval += Integer.parseInt(cSeconds)/3600;
+                    interval += Integer.parseInt(cSeconds)/60;
                 }
             }
 
             /**
              * Active
              */
-            Pattern patActive = Pattern.compile("inactive");
+            Pattern patActive = Pattern.compile("inActive");
             Matcher mActive = patActive.matcher(taskString);
             if (mActive.find()) {
+                active = false;
+            }else{
                 active = true;
             }
+
 
             /**
              * Create task
              */
-            if (dStart != null && dEnd != null) {
+            if (repeated) {
                 myTask = new Task(title, dStart, dEnd, interval);
             } else myTask = new Task(title, dTime);
             if (active) {

@@ -77,6 +77,9 @@ public class MainController {
             if (ret == JFileChooser.APPROVE_OPTION) {
                 File file = fileopen.getSelectedFile();
                 try {
+                    taskList = new ArrayTaskList();
+                    model = new TaskListTableModel(taskList);
+                    taskManagerView.setModelTable(model);
                     TaskIO.readText(taskList, file);
                     updateView();
                     log.info("File: " + file + " was successfully loaded to app");

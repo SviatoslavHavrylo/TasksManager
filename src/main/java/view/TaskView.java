@@ -28,7 +28,7 @@ public class TaskView extends JFrame{
         super("Task");
         createGUI();
         viewRepeatedTask();
-        setInterval(24);
+        setInterval(24*60);
         setComboBoxInterval(0);
         //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(mainPanel);
@@ -52,26 +52,35 @@ public class TaskView extends JFrame{
         comboBoxInterval.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selInterval = (String) comboBoxInterval.getSelectedItem();
-
-                switch(selInterval) {
-                    case "Every day" :
-                        int secDay = 24;
-                        interval.setText(Integer.toString(secDay));
-                        break;
-                    case "Every week" :
-                        int secWeek = 24*7;
-                        interval.setText(Integer.toString(secWeek));
-                        break;
-                    case "Every month" :
-                        //TODO change int for month
-                        int secMonth = 24*30;
-                        interval.setText(Integer.toString(secMonth));
-                        break;
-                }
+                intervalSetText();
             }
         });
     }
+
+    public void intervalSetText() {
+        String selInterval = (String) comboBoxInterval.getSelectedItem();
+
+        switch(selInterval) {
+            case "Every hour" :
+                int secHour = 60;
+                interval.setText(Integer.toString(secHour));
+                break;
+            case "Every day" :
+                int secDay = 24*60;
+                interval.setText(Integer.toString(secDay));
+                break;
+            case "Every week" :
+                int secWeek = 24*7*60;
+                interval.setText(Integer.toString(secWeek));
+                break;
+            case "Every month" :
+                //TODO change int for month
+                int secMonth = 24*30*60;
+                interval.setText(Integer.toString(secMonth));
+                break;
+        }
+    }
+
 
     public Task getTask() {
         return task;
@@ -146,9 +155,10 @@ public class TaskView extends JFrame{
         activeTaskCheckBox.setText("Active task");
         mainPanel.add(activeTaskCheckBox, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         String[] items = {
+                "Custom",
+                "Every hour",
                 "Every day",
-                "Every week",
-                "Every month"
+                "Every week"
         };
         comboBoxInterval = new JComboBox(items);
         mainPanel.add(comboBoxInterval, new GridConstraints(4, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -156,13 +166,18 @@ public class TaskView extends JFrame{
         label5.setText("interval");
         mainPanel.add(label5, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setText("interval hours");
+        label6.setText("interval minutes");
         mainPanel.add(label6, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     public void viewRepeatedTask() {
         //setVisible
         boolean taskIsRepeated = repetedTaskCheckBox.isSelected();
+        if (taskIsRepeated) {
+            setComboBoxInterval(24*60);
+        }else{
+            setComboBoxInterval(0);
+        }
         startTime.setEnabled(taskIsRepeated);
         endTime.setEnabled(taskIsRepeated);
         comboBoxInterval.setEnabled(taskIsRepeated);
@@ -211,15 +226,18 @@ public class TaskView extends JFrame{
     }
 
     public void setInterval(int interval) {
-       String intervalValue  = "Every day";
+       String intervalValue  = "Custom";
         switch(interval) {
-            case 24 :
+            case 60 :
+                intervalValue = "Every hour";
+                break;
+            case 24*60 :
                 intervalValue = "Every day";
                 break;
-            case 24*7 :
+            case 24*60*7 :
                intervalValue = "Every week";
                 break;
-            case 24*30 :
+            case 24*60*30 :
                 intervalValue = "Every month";
                 break;
         }
