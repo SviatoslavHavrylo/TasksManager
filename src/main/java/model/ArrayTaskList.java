@@ -44,6 +44,12 @@ public class ArrayTaskList extends TaskList {
         return haveFound;
     }
 
+    public void removeAll() {
+        for (int i = 0; i < size(); i++)
+            taskList[i] = null;
+        pointer = 0;
+    }
+
     /**
      * @return int size
      */

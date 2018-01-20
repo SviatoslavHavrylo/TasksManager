@@ -88,9 +88,9 @@ public class TaskIO {
             size++;
             dataOut.append(task.isActive() ? " active" : " inActive");
             dataOut.append(size == listSize ? "." : ";\n");
-            printWriter.append(dataOut);
-            printWriter.flush();
         }
+        printWriter.append(dataOut);
+        printWriter.flush();
         printWriter.close();
     }
 

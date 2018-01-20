@@ -77,9 +77,7 @@ public class MainController {
             if (ret == JFileChooser.APPROVE_OPTION) {
                 File file = fileopen.getSelectedFile();
                 try {
-                    taskList = new ArrayTaskList();
-                    model = new TaskListTableModel(taskList);
-                    taskManagerView.setModelTable(model);
+                    taskList.removeAll();
                     TaskIO.readText(taskList, file);
                     updateView();
                     log.info("File: " + file + " was successfully loaded to app");
@@ -118,6 +116,9 @@ public class MainController {
     class deleteTaskButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int selIndex = taskManagerView.getTaskTableSelectedRow();
+            if (selIndex < 0) {
+                taskManagerView.displayErrorMessage("Select task first");
+            }
             model.removeRow(selIndex);
             taskList.remove(taskList.getTask(selIndex));
         }

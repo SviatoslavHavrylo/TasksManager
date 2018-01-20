@@ -28,6 +28,7 @@ public class ScheduledReminderThread {
             long oneMinute = MILLISECONDS.convert(1, MINUTES);
 
             public void run() {
+                System.out.println("running scheduler");
                 Date currentDate = new Date();
                 for (Task task : ScheduledReminderThread.this.taskList) {
                     long duration = task.nextTimeAfter(currentDate).getTime() - currentDate.getTime();
