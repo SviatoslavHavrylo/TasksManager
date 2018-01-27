@@ -9,7 +9,7 @@ import model.Task;
  */
 public class TaskListTableModel extends DefaultTableModel {
     private ArrayTaskList taskList;
-    private String[] columnsNames = new String[] {"Title", "Next time","Repeated","Active"};
+    private String[] columnsNames = new String[] {"Title", "Next time","Repeated","Active", "index"};
 
     public TaskListTableModel(ArrayTaskList taskList) {
         super();
@@ -33,6 +33,8 @@ public class TaskListTableModel extends DefaultTableModel {
                 return Boolean.class;
             case 3:
                 return Boolean.class;
+            case 4:
+                return Task.class;
             default:
                 return String.class;
         }

@@ -13,6 +13,7 @@ import model.Task;
  */
 public class TaskView extends JFrame{
     private JButton save;
+    private JButton okButton;
     private JCheckBox activeTaskCheckBox;
     private JFormattedTextField taskTitle;
     private JSpinner  startTime;
@@ -168,6 +169,17 @@ public class TaskView extends JFrame{
         final JLabel label6 = new JLabel();
         label6.setText("interval minutes");
         mainPanel.add(label6, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    public void changeSaveButton(){
+        mainPanel.remove(save);
+        okButton = new JButton();
+        okButton.setText("OK");
+        mainPanel.add(okButton, new GridConstraints(6, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    public void addOkButtonListener(ActionListener okButtonListener) {
+        okButton.addActionListener(okButtonListener);
     }
 
     public void viewRepeatedTask() {

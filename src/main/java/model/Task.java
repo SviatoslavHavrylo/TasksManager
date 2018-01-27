@@ -227,7 +227,7 @@ public class Task implements Cloneable, Serializable {
             Date countTime = (Date) startTime.clone();
 
             while (countTime.getTime() <= current.getTime() && endTime.after(current)) {
-                countTime.setTime(countTime.getTime() + repeatInterval * 1000);
+                countTime.setTime(countTime.getTime() + repeatInterval * 1000*60);
             }
             return (endTime.getTime() >= countTime.getTime()) ? countTime : result;
         }

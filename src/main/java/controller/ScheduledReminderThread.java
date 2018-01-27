@@ -1,16 +1,17 @@
 package controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-
 import model.ArrayTaskList;
 import model.Task;
 import view.TaskView;
+
+import static java.util.concurrent.TimeUnit.*;
 
 
 /**
@@ -19,7 +20,6 @@ import view.TaskView;
 
 public class ScheduledReminderThread {
     private ArrayTaskList taskList;
-    private TaskView taskView;
 
     public ScheduledReminderThread(ArrayTaskList taskList) {
         this.taskList = taskList;
@@ -32,17 +32,28 @@ public class ScheduledReminderThread {
                 Date currentDate = new Date();
                 for (Task task : ScheduledReminderThread.this.taskList) {
                     long duration = task.nextTimeAfter(currentDate).getTime() - currentDate.getTime();
+
                     if (duration <= oneMinute & duration > 0) {
-                        taskView = new TaskView(task);
+                        TaskView taskView = new TaskView(task);
+                        taskView.changeSaveButton();
+                        taskView.addOkButtonListener(new okButtonListener(taskView));
                         taskView.setTitle("You have new task NOW !");
                         taskView.setVisible(true);
-                        // ScheduledReminderThread reminderThread = new ScheduledReminderThread(ScheduledReminderThread.this.taskList);
                     }
                 }
             }
         };
         ses.scheduleWithFixedDelay(pinger, 60, 60, TimeUnit.SECONDS);
     }
+
+    class okButtonListener implements ActionListener {
+        private TaskView taskView;
+        public okButtonListener(TaskView taskView) {
+            this.taskView = taskView;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            taskView.dispose();
+        }
+    }
 }
-
-

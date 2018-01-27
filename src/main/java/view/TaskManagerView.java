@@ -1,9 +1,11 @@
 package view;
 
 import com.intellij.uiDesigner.core.*;
+import model.Task;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.Date;
@@ -90,7 +92,6 @@ public class TaskManagerView extends JFrame {
         TaskTable.setSurrendersFocusOnKeystroke(true);
         TaskTable.setUpdateSelectionOnSort(false);
         scrollPane1.setViewportView(TaskTable);
-
     }
 
     public void setBorderTitle(String title) {
@@ -127,10 +128,20 @@ public class TaskManagerView extends JFrame {
 
     public void setModelTable(TaskListTableModel model) {
         TaskTable.setModel(model);
+        TableColumn column = TaskTable.getColumnModel().getColumn(4);
+        column.setPreferredWidth(0);
+        column.setWidth(0);
+        column.setMinWidth(0);
+        column.setMaxWidth(0);
     }
 
     public int getTaskTableSelectedRow() {
+        //return (int) TaskTable.getValueAt(TaskTable.getSelectedRow(), 4);
         return TaskTable.getSelectedRow();
+    }
+
+    public Task getSelectedTask() {
+        return (Task) TaskTable.getValueAt(TaskTable.getSelectedRow(), 4);
     }
 
     public void displayErrorMessage(String errorMessage) {

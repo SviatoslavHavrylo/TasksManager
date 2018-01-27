@@ -106,7 +106,8 @@ public class MainController {
             if (selIndex < 0) {
                 taskManagerView.displayErrorMessage("Select task first");
             }
-            Task value = model.getValueAt(selIndex);
+           // Task value = model.getValueAt(selIndex);
+            Task value = taskManagerView.getSelectedTask();
             taskView = new TaskView(value);
             taskView.addSaveNewTaskButtonListener(new saveNewTaskButtonListener());
             taskView.setVisible(true);
@@ -119,8 +120,9 @@ public class MainController {
             if (selIndex < 0) {
                 taskManagerView.displayErrorMessage("Select task first");
             }
-            model.removeRow(selIndex);
-            taskList.remove(taskList.getTask(selIndex));
+            Task value = taskManagerView.getSelectedTask();
+            taskList.remove(value);
+            updateView();
         }
     }
 
@@ -129,7 +131,7 @@ public class MainController {
             model.setRowCount(0);
             try {
                 for (Task next : Tasks.incoming(taskList, taskManagerView.getDateFrom(), taskManagerView.getDateTo())) {
-                    model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.nextTimeAfter(taskManagerView.getDateFrom())), next.isRepeated(), next.isActive()});
+                    model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.nextTimeAfter(taskManagerView.getDateFrom())), next.isRepeated(), next.isActive(), next});
                 }
             } catch (Exception e1) {
                 e1.printStackTrace();
@@ -188,7 +190,7 @@ public class MainController {
     public void updateView() {
         model.setRowCount(0);
         for (Task next : taskList) {
-            model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive()});
+            model.addRow(new Object[]{next.getTitle(), dateFormat.format(next.getTime()), next.isRepeated(), next.isActive(), next});
         }
     }
 }
